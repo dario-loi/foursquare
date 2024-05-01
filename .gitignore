@@ -1,0 +1,4 @@
+.env
+.pytest_cache
+dataset_TIST2015
+*.zip
