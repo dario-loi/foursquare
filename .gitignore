@@ -1,4 +1,6 @@
 .env
+trovailpoi
+wandb
 .pytest_cache
 dataset_TIST2015
 *.zip
