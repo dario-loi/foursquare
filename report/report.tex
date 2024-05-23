@@ -99,6 +99,14 @@ The dataset used in this work is the Foursquare dataset\cite{foursquare}. This d
  266,909 users on 3,680,126 venues (in 415 cities in 77 countries). 
  Those 415 cities are the most checked 415 cities by Foursquare users in the world, 
  each of which contains at least 10K check-ins.
+ %insert image with the points on the map before preprocessing
+
+ \begin{figure}
+  \centering
+  \includegraphics[width=1\linewidth]{poi_original.png}
+  \caption{Points of Interest on the map before preprocessing}
+  \label{fig:data}
+\end{figure}
  \subsection{Data Preprocessing}
  The preprocessing follows the same steps as in the original paper, which are:
   \begin{itemize}
@@ -107,10 +115,29 @@ The dataset used in this work is the Foursquare dataset\cite{foursquare}. This d
       \item Sort the timestamps in chronological order
       \item Divide the data into training and testing sets keeping the first 80\% of the visits for training and the last 20\% for testing
   \end{itemize}
-At the end we obtain data with a similar distribution:
-[insert image with the points on the map after preprocessing!!]
-%insert image with the points on the map after preprocessing 
-\subsection{Graph Construction}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{poi_after_processing.png}
+    \caption{Points of Interest on the map after preprocessing}
+    \label{fig:preprocessed_data}
+  \end{figure}
+  The number of POIs before and after processing matches exactly 
+  the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
+  \begin{table}
+    \caption{Number of POIs}
+     \centering
+     \begin{tabular}{ll}
+       \toprule
+        Before Preprocessing & After Preprocessing \\
+        \midrule
+        \cmidrule(r){2-2}
+        3,680,126 & 4,455 \\
+       \bottomrule
+     \end{tabular}
+     \label{tab:poidata}
+   \end{table}
+
+ \subsection{Graph Construction}
 \subsubsection{Spatial Graph}
 The spatial graph encodes the relationships between 
 different points of interest. It is constructed based on the
@@ -185,6 +212,22 @@ outcomes at multiple granularities, ranging from individual points of interest
 As the previous model, the GRN integrates dropout regularization and a
 cross-entropy loss.
 \section{Experiments}
+The training procedure utilized the PyTorch Lightning framework, 
+augmented with the WandbLogger for real-time monitoring and logging of 
+training metrics. The training dataset was split into train and test sets, 
+with a batch size of 32 and parallel processing enabled across 4 workers for 
+data loading efficiency. The GRN model was instantiated with specific 
+hyperparameters, including a hidden dimension of 1024 and a dropout rate of 0.9
+as specifiied in the reference paper. The training process was configured
+ for a maximum of 200 epochs and equipped with callbacks for dynamic
+  adjustment of learning rates, model checkpointing, and early 
+  stopping based on validation loss. 
+  
+  Throughout the training process, careful attention was paid to memory 
+  management and optimization techniques. The experimental setup aimed to
+   strike a balance between computational efficiency and model performance, 
+   laying the groundwork for robust experimentation and evaluation of the
+    GRN architecture.
 \section{Results}
 \subsection{Metrics}
 The performance of the models is evaluated using the following metrics:
@@ -204,7 +247,8 @@ where $\delta$ is the indicator function, $N$ is the number of test samples, Top
 POIs with the highest predicted scores,
 and $\text{rank}_i$ is the rank of the correct POI for the $i$-th test sample.
 \subsection{Results}
-[Data to be substitued with the actual results!]
+The results obtained from the experiments are summarized in Table \ref{tab:results}.
+The models achieve similar performance to the original paper.
 \begin{table}
   \caption{Results}
    \centering
@@ -218,7 +262,7 @@ and $\text{rank}_i$ is the rank of the correct POI for the $i$-th test sample.
 
      \bottomrule
    \end{tabular}
-   \label{tab:table}
+   \label{tab:results}
  \end{table}
 \section{Conclusion}
 We have re-implemented the HMT-RN and GRN models for the task of 

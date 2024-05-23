@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10.12) (preloaded format=pdflatex 2023.10.26)  22 MAY 2024 19:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.10.12) (preloaded format=pdflatex 2023.10.26)  23 MAY 2024 18:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -478,19 +478,35 @@ Underfull \hbox (badness 10000) in paragraph at lines 79--79
 
  []
 
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 105.
+<poi_original.png, id=61, 490.7133pt x 250.7769pt>
+File: poi_original.png Graphic file (type png)
+<use poi_original.png>
+Package pdftex.def Info: poi_original.png  used on input line 106.
+(pdftex.def)             Requested size: 229.87749pt x 117.47867pt.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 113.
 (C:\Users\Martina\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [1{C:/Users/Martina/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
+)
+<poi_after_processing.png, id=63, 490.7133pt x 250.0542pt>
+File: poi_after_processing.png Graphic file (type png)
+<use poi_after_processing.png>
+Package pdftex.def Info: poi_after_processing.png  used on input line 120.
+(pdftex.def)             Requested size: 229.87749pt x 117.1401pt.
+
+Underfull \vbox (badness 3271) has occurred while \output is active []
+
+ [1{C:/Users/Martina/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
 
 
 
-]
-Overfull \hbox (9.92232pt too wide) in paragraph at lines 211--222
+ <./poi_original.png> <./poi_after_processing.png>] [2]
+Overfull \hbox (9.92232pt too wide) in paragraph at lines 255--266
  [][] 
  []
 
-[2] (report.aux)
+[3
+
+] (report.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-10-10>
@@ -499,17 +515,17 @@ Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: DDE19C6167EDB030A848A28C6AF12443;1495.
  ) 
 Here is how much of TeX's memory you used:
- 12888 strings out of 474824
- 208374 string characters out of 5750032
- 1943043 words of memory out of 5000000
- 34485 multiletter control sequences out of 15000+600000
- 593742 words of font info for 143 fonts, out of 8000000 for 9000
+ 12920 strings out of 474824
+ 208964 string characters out of 5750032
+ 1941043 words of memory out of 5000000
+ 34504 multiletter control sequences out of 15000+600000
+ 594132 words of font info for 149 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 79i,11n,93p,1046b,460s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 79i,12n,93p,1046b,464s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb>
-Output written on report.pdf (2 pages, 112376 bytes).
+Output written on report.pdf (3 pages, 245791 bytes).
 PDF statistics:
- 129 PDF objects out of 1000 (max. 8388607)
- 26 named destinations out of 1000 (max. 500000)
- 36465 words of extra memory for PDF output out of 42996 (max. 10000000)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 30 named destinations out of 1000 (max. 500000)
+ 36475 words of extra memory for PDF output out of 42996 (max. 10000000)
 

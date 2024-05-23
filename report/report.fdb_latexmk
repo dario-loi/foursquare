@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1716394651 "c:/Users/Martina/Desktop/foursquare/report/report.tex" "report.pdf" "report" 1716394652 0
+["pdflatex"] 1716479561 "c:/Users/Martina/Desktop/foursquare/report/report.tex" "report.pdf" "report" 1716479561 0
   "C:/Users/Martina/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1716297803 132155 4a54a775e7b89d583732991d79d7c6cc ""
   "C:/Users/Martina/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1698305596 24176129 7c80cf37c099d5e1a60f896827f88782 ""
   "C:/Users/Martina/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -104,10 +104,12 @@
   "C:/Users/Martina/AppData/Local/Programs/MiKTeX/tex/latex/units/nicefrac.sty" 1469029150 4163 0462ee5ab265cf59dc15a41a3b883101 ""
   "C:/Users/Martina/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "PRIMEarxiv.sty" 1716297636 7647 257f5f0b6c90ec491e05bd461066ae66 ""
-  "c:/Users/Martina/Desktop/foursquare/report/report.tex" 1716394651 9945 8470c717daed3f235d9713e6bce28aa6 ""
-  "report.aux" 1716394652 2410 5bd2f2c56c99c361d6aeb4430b055e8e "pdflatex"
-  "report.out" 1716394652 1495 dde19c6167edb030a848a28c6af12443 "pdflatex"
-  "report.tex" 1716394651 9945 8470c717daed3f235d9713e6bce28aa6 ""
+  "c:/Users/Martina/Desktop/foursquare/report/report.tex" 1716479559 11831 b7b5826f25b2f8447b5857b1ece42152 ""
+  "poi_after_processing.png" 1716478364 99469 8033b2460edf19c1c68f903e206754a9 ""
+  "poi_original.png" 1716478373 97756 ebd5a3e1f9c2915a89db7e50309b1642 ""
+  "report.aux" 1716479561 3110 61c4908401cf65748aa3c28f7620dfad "pdflatex"
+  "report.out" 1716479561 1495 dde19c6167edb030a848a28c6af12443 "pdflatex"
+  "report.tex" 1716479559 11831 b7b5826f25b2f8447b5857b1ece42152 ""
   (generated)
   "report.aux"
   "report.log"
