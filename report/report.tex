@@ -1,5 +1,5 @@
 
-\documentclass[twocolumn]{article}
+\documentclass[twocolumn,twoside]{article}
 
 
 \usepackage{PRIMEarxiv}
@@ -7,7 +7,17 @@
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
+
+% setup hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
 \usepackage{url}            % simple URL typesetting
+\usepackage{subcaption}     % subcaptions
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
@@ -24,9 +34,13 @@
 \rhead{ \textit{ }} 
 
 % Update your Headers here
-\fancyhead[LO]{Running Title for Header}
-% \fancyhead[RE]{Firstauthor and Secondauthor} % Firstauthor et al. if more than 2 - must use \documentclass[twoside]{article}
+\fancyhead[LO,RE]{Graph Neural Networks For Next Point Of Interest Recommendation}
+\fancyhead[LE,RO]{Dario Loi, Elena Muià, Martina Doku} % Firstauthor et al. if more than 2 - must use \documentclass[twoside]{article}
 
+
+
+
+\DeclareMathOperator{\jax}{Jaccard}
 
 
   
@@ -68,180 +82,192 @@
   \begin{@twocolumnfalse}
     \maketitle
     \begin{abstract}
-      A POI (Point of Interest) recommendation technique essentially exploits users’
+      A POI (Point of Interest) recommendation technique essentially exploits users'
       historical check-ins and other multi-modal information such as POI attributes and
       friendship network, to recommend the next set of POIs suitable for a user. A POI
-      recommendation technique essentially exploits users’ historical check-ins and other
+      recommendation technique essentially exploits users' historical check-ins and other
       multimodal information to recommend the next set of POIs suitable for a user. \newline
     \end{abstract}
   \end{@twocolumnfalse}
-  
+
 ]
 
 
 \section{Introduction}
-This work is a re-implementation of the paper "Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation" \cite{main_paper}. 
-The paper proposes a novel Graph Neural Network (GNN) model for the task of 
-next Point of Interest (POI) recommendation. The model is designed to 
-capture the complex relationships between users and POIs, and to 
-leverage the rich information available in the user-POI interaction 
-graph. The proposed model is evaluated on a real-world dataset and 
+This work is a re-implementation of the paper "Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation" \cite{main_paper}.
+The paper proposes a novel Graph Neural Network (GNN) model for the task of
+next Point of Interest (POI) recommendation. The model is designed to
+capture the complex relationships between users and POIs, and to
+leverage the rich information available in the user-POI interaction
+graph. The proposed model is evaluated on a real-world dataset and
 compared with a tate-of-the-art baseline. The experimental results
- show that the proposed model outperforms the baselines and 
- achieves state-of-the-art performance on the task of next POI recommendation.
+show that the proposed model outperforms the baselines and
+achieves state-of-the-art performance on the task of next POI recommendation.
 
 
 \section{Data Preprocessing}
 \subsection{Dataset}
 The dataset used in this work is the Foursquare dataset\cite{foursquare}. This dataset includes
- long-term (about 18 months from April 2012 to September 2013) global-scale 
- check-in data collected from Foursquare. It contains 33,278,683 checkins by 
- 266,909 users on 3,680,126 venues (in 415 cities in 77 countries). 
- Those 415 cities are the most checked 415 cities by Foursquare users in the world, 
- each of which contains at least 10K check-ins.
- %insert image with the points on the map before preprocessing
+long-term (about 18 months from April 2012 to September 2013) global-scale
+check-in data collected from Foursquare. It contains 33,278,683 checkins by
+266,909 users on 3,680,126 venues (in 415 cities in 77 countries).
+Those 415 cities are the most checked 415 cities by Foursquare users in the world,
+each of which contains at least 10K check-ins.
+%insert image with the points on the map before preprocessing
 
- \begin{figure}
+\subsection{Data Preprocessing}
+
+
+\begin{figure}[ht]
   \centering
-  \includegraphics[width=1\linewidth]{poi_original.png}
-  \caption{Points of Interest on the map before preprocessing}
-  \label{fig:data}
-\end{figure}
- \subsection{Data Preprocessing}
- The preprocessing follows the same steps as in the original paper, which are:
-  \begin{itemize}
-      \item Filter out users with visit counts less than 20 and more than 50
-      \item Remove POIs visited by less than 10 users
-      \item Sort the timestamps in chronological order
-      \item Divide the data into training and testing sets keeping the first 80\% of the visits for training and the last 20\% for testing
-  \end{itemize}
-  \begin{figure}
+  \begin{subfigure}[b]{0.95\linewidth}
     \centering
-    \includegraphics[width=1\linewidth]{poi_after_processing.png}
-    \caption{Points of Interest on the map after preprocessing}
+    \includegraphics[width=\linewidth]{poi_original.png}
+    \caption{Original Points of Interest on the world map}
+    \label{fig:data}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.95\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{poi_after_processing.png}
+    \caption{Remaining Points of Interest after dataset pruning}
     \label{fig:preprocessed_data}
-  \end{figure}
-  The number of POIs before and after processing matches exactly 
-  the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
-  \begin{table}
-    \caption{Number of POIs}
-     \centering
-     \begin{tabular}{ll}
-       \toprule
-        Before Preprocessing & After Preprocessing \\
-        \midrule
-        \cmidrule(r){2-2}
-        3,680,126 & 4,455 \\
-       \bottomrule
-     \end{tabular}
-     \label{tab:poidata}
-   \end{table}
+  \end{subfigure}
+  \caption{Comparison of Points of Interest on the world map before (\ref{fig:data}) and after (\ref{fig:preprocessed_data}) preprocessing}
+\end{figure}
 
- \subsection{Graph Construction}
+
+The preprocessing follows the same steps as in the original paper, which are:
+\begin{itemize}
+  \item Filter out users with visit counts less than 20 and more than 50
+  \item Remove POIs visited by less than 10 users
+  \item Sort the timestamps in chronological order
+  \item Divide the data into training and testing sets keeping the first 80\% of the visits for training and the last 20\% for testing
+\end{itemize}
+
+
+
+The number of POIs before and after processing matches exactly
+the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
+\begin{table}
+  \caption{Number of POIs}
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    Before Preprocessing & After Preprocessing \\
+    \midrule
+    \midrule
+    $3,680,126$          & $4,455$             \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:poidata}
+\end{table}
+
+\subsection{Graph Construction}
 \subsubsection{Spatial Graph}
-The spatial graph encodes the relationships between 
+The spatial graph encodes the relationships between
 different points of interest. It is constructed based on the
- physical or functional proximity of POIs. The adjacency matrix 
- for the spatial graph is defined as follows:
-  \begin{equation}
-      a_{ij} = \begin{cases}
-      1 & \text{if } G@4(i) = G@4(j) \\
-      0 & \text{otherwise}
-      \end{cases}
-  \end{equation}
+physical or functional proximity of POIs. The adjacency matrix
+for the spatial graph is defined as follows:
+\begin{equation}
+  a_{ij} = \begin{cases}
+    1 & \text{if } G@4(i) = G@4(j) \\
+    0 & \text{otherwise}
+  \end{cases}
+\end{equation}
 \subsubsection{Temporal Graph}
 The temporal graph captures the sequential relationships between
-  POIs. As done in the original paper,
-  we divided the week in 56 time slots and assigned each check-in to
-   the corresponding time slots $v^{slot}$. Then we constructed the adjacency matrix
-    for the temporal graph as follows:
-  \begin{equation}
-      a_{ij} = \begin{cases}
-      1 & \text{if } Jaccard(v^{slot}_i, v^{slot}_j) > 0.9 \\
-      0 & \text{otherwise}
-      \end{cases}
-  \end{equation}
-  where $Jaccard(v^{slot}_i, v^{slot}_j)$ is the Jaccard 
-  similarity between the two time slots:
-  \begin{equation}
-      Jaccard(v^{slot}_i, v^{slot}_j) = \frac{|v^{slot}_i \cap v^{slot}_j|}{|v^{slot}_i \cup v^{slot}_j|}
-  \end{equation}
+POIs. As done in the original paper,
+we divided the week in 56 time slots and assigned each check-in to
+the corresponding time slots $v^{slot}$. Then we constructed the adjacency matrix
+for the temporal graph as follows:
+\begin{equation}
+  a_{ij} = \begin{cases}
+    1 & \text{if } \jax(v^{slot}_i, v^{slot}_j) > 0.9 \\
+    0 & \text{otherwise}
+  \end{cases}
+\end{equation}
+where $\jax(v^{slot}_i, v^{slot}_j)$ is the Jaccard
+similarity between the two time slots:
+\begin{equation}
+  \jax(v^{slot}_i, v^{slot}_j) = \frac{|v^{slot}_i \cap v^{slot}_j|}{|v^{slot}_i \cup v^{slot}_j|}
+\end{equation}
 
 
 
 \section{HMT-RN}
 The HMT\_RN (Hierarchical Multi\-Task Recurrent Network) is a
-neural network architecture designed for multi-task learning. It employs 
+neural network architecture designed for multi-task learning. It employs
 embedding layers for users, POIs, and different geo-hash levels,
- effectively capturing the hierarchical nature of spatial data.
+effectively capturing the hierarchical nature of spatial data.
 
 Central to the HMT\_RN is an LSTM (Long Short\-Term Memory) layer,
 which processes sequences of embedded data, capturing temporal dependencies.
 The output from the LSTM is concatenated with the embeddings
 and passed through several linear layers, each responsible
-for predicting the next element in different hierarchical 
-levels (e.g., POI, geo-hash levels 2 through 6). The model 
+for predicting the next element in different hierarchical
+levels (e.g., POI, geo-hash levels 2 through 6). The model
 uses a dropout layer to mitigate overfitting and a
 criterion based on cross-entropy loss, applied selectively
-to handle padded sequences. Additionally, 
-it incorporates accuracy metrics at various 
-levels (top-1, top-5, top-10, top-20) and 
+to handle padded sequences. Additionally,
+it incorporates accuracy metrics at various
+levels (Top-1, Top-5, Top-10, Top-20)\footnote{Also called Accuracy@K in the paper\cite{main_paper}} and
 Mean Reciprocal Rank (MRR) for performance
 evaluation.
 \section{GRN}
-The GRN (Graph Recurrent Network) is an attention/based model, developed to 
+The GRN (Graph Recurrent Network) is an attention\-based model, developed to
 leverage both spatial and temporal graph structures for enhanced predictive
- capabilities.
+capabilities.
 
-At its core, the GRN integrates graph attention mechanisms 
+At its core, the GRN integrates graph attention mechanisms
 with recurrent layers to adeptly process and forecast sequential data points.
- This amalgamation enables the model to effectively capture the intricate 
- spatial and temporal relationships inherent in the data.
+This amalgamation enables the model to effectively capture the intricate
+spatial and temporal relationships inherent in the data.
 
-The model architecture encompasses multiple key components. Firstly, it employs 
-graph self-attention mechanisms to dynamically weigh the importance of 
-neighboring data points within both spatial and temporal contexts. 
-Central to the GRN is an attentional LSTM (Long Short-Term Memory) layer, 
-designed to handle sequences of embedded data while capturing temporal 
-dependencies. Furthermore, the GRN incorporates various linear layers 
-responsible for predicting the next element in the sequence across 
-different hierarchical levels. These layers enable the model to forecast 
+The model architecture encompasses multiple key components. Firstly, it employs
+graph self-attention mechanisms to dynamically weigh the importance of
+neighboring data points within both spatial and temporal contexts.
+Central to the GRN is an attentional LSTM (Long Short-Term Memory) layer,
+designed to handle sequences of embedded data while capturing temporal
+dependencies. Furthermore, the GRN incorporates various linear layers
+responsible for predicting the next element in the sequence across
+different hierarchical levels. These layers enable the model to forecast
 outcomes at multiple granularities, ranging from individual points of interest
- (POIs) to higher-order spatial structures represented by different geo-hash levels.
+(POIs) to higher-order spatial structures represented by different geo-hash levels.
 
-As the previous model, the GRN integrates dropout regularization and a
-cross-entropy loss.
+As with the previous model, the GRN integrates dropout regularization and uses
+cross-entropy loss as the optimization criterion.
 \section{Experiments}
-The training procedure utilized the PyTorch Lightning framework, 
-augmented with the WandbLogger for real-time monitoring and logging of 
-training metrics. The training dataset was split into train and test sets, 
-with a batch size of 32 and parallel processing enabled across 4 workers for 
-data loading efficiency. The GRN model was instantiated with specific 
-hyperparameters, including a hidden dimension of 1024 and a dropout rate of 0.9
-as specifiied in the reference paper. The training process was configured
- for a maximum of 200 epochs and equipped with callbacks for dynamic
-  adjustment of learning rates, model checkpointing, and early 
-  stopping based on validation loss. 
-  
-  Throughout the training process, careful attention was paid to memory 
-  management and optimization techniques. The experimental setup aimed to
-   strike a balance between computational efficiency and model performance, 
-   laying the groundwork for robust experimentation and evaluation of the
-    GRN architecture.
+The training procedure utilized the PyTorch Lightning framework,
+augmented with the WandbLogger for real-time monitoring and logging of
+training metrics. The training dataset was split into train and test sets,
+with a batch size of $32$ and parallel processing enabled across $4$ workers for
+data loading efficiency. The GRN model was instantiated with specific
+hyperparameters, including a hidden dimension of $1024$ and a dropout rate of $0.9$
+as specified in the reference paper. The training process was configured
+for a maximum of $200$ epochs and equipped with callbacks for dynamic
+adjustment of learning rates, model checkpointing, and early
+stopping based on validation loss.
+
+Throughout the training process, careful attention was paid to memory
+management and optimization techniques. The experimental setup aimed to
+strike a balance between computational efficiency and model performance,
+laying the groundwork for robust experimentation and evaluation of the
+GRN architecture.
 \section{Results}
 \subsection{Metrics}
 The performance of the models is evaluated using the following metrics:
 \begin{itemize}
-    \item Top-1, Top-5, Top-10, Top-20 accuracy
-    \item Mean Reciprocal Rank (MRR)
+  \item Top-1, Top-5, Top-10, Top-20 accuracy
+  \item Mean Reciprocal Rank (MRR)
 \end{itemize}
 where the top-k accuracy is calculated as follows:
 \begin{equation}
-    \text{Top-k accuracy} = \frac{1}{N} \sum_{i=1}^{N} \delta(i \in \text{Top-k})
+  \text{Top-k accuracy} = \frac{1}{N} \sum_{i=1}^{N} \delta(i \in \text{Top-k})
 \end{equation}
 and the MRR is calculated as follows:
 \begin{equation}
-    \text{MRR} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{\text{rank}_i}
+  \text{MRR} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{\text{rank}_i}
 \end{equation}
 where $\delta$ is the indicator function, $N$ is the number of test samples, Top-k is the set of the k
 POIs with the highest predicted scores,
@@ -251,30 +277,30 @@ The results obtained from the experiments are summarized in Table \ref{tab:resul
 The models achieve similar performance to the original paper.
 \begin{table}
   \caption{Results}
-   \centering
-   \begin{tabular}{llllll}
-     \toprule
-      Name     & Top-1 & Top-5 & Top-10 & Top-20 & MRR \\
-      \midrule
-      \cmidrule(r){2-6}
-      \textbf{HMT-RN}   & 0.123 & 0.456 & 0.789  & 0.987 & 0.654 \\
-      \textbf{GRN}      & 0.321 & 0.654 & 0.987  & 0.123 & 0.456 \\
+  \centering
+  \begin{tabular}{llllll}
+    \toprule
+    Name            & Top-1   & Top-5   & Top-10  & Top-20  & MRR     \\
+    \midrule
+    \midrule
+    \textbf{HMT-RN} & $0.123$ & $0.456$ & $0.789$ & $0.987$ & $0.654$ \\
+    \textbf{GRN}    & $0.321$ & $0.654$ & $0.987$ & $0.123$ & $0.456$ \\
 
-     \bottomrule
-   \end{tabular}
-   \label{tab:results}
- \end{table}
+    \bottomrule
+  \end{tabular}
+  \label{tab:results}
+\end{table}
 \section{Conclusion}
-We have re-implemented the HMT-RN and GRN models for the task of 
-next POI recommendation. The models were evaluated on the refence 
-Foursquare dataset and compared with the original results. The 
+We have re-implemented the HMT-RN and GRN models for the task of
+next POI recommendation. The models were evaluated on the refence
+Foursquare dataset and compared with the original results. The
 results show that the models achieve similar performance to the
 original paper, demonstrating the effectiveness of the proposed
 approach for next POI recommendation.
 %References
 \begin{thebibliography}{9}
-\bibitem{main_paper}Nicholas Lim, Bryan Hooi, See-Kiong Ng, Yong Liang Goh, Renrong Weng, and Rui Tan. 2022. Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation. In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '22). Association for Computing Machinery, New York, NY, USA, 1133\-1143. https://doi.org/10.1145/3477495.3531989
-\bibitem{foursquare}Dingqi Yang, Daqing Zhang, Longbiao Chen, and Bingqing Quc. 2015. NationTelescope: Monitoring and Visualizing Large-Scale Collective Behavior in LBSNs.
-Journal of Network and Computer Applications 0, 0 (2015), 1–16.
+  \bibitem{main_paper}Nicholas Lim, Bryan Hooi, See-Kiong Ng, Yong Liang Goh, Renrong Weng, and Rui Tan. 2022. Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation. In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '22). Association for Computing Machinery, New York, NY, USA, 1133\-1143. https://doi.org/10.1145/3477495.3531989
+  \bibitem{foursquare}Dingqi Yang, Daqing Zhang, Longbiao Chen, and Bingqing Quc. 2015. NationTelescope: Monitoring and Visualizing Large-Scale Collective Behavior in LBSNs.
+  Journal of Network and Computer Applications 0, 0 (2015), 1–16.
 \end{thebibliography}
 \end{document}
