@@ -11,9 +11,10 @@
 % setup hyperref
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue,
+    linkcolor=cyan,
     filecolor=magenta,      
     urlcolor=cyan,
+    citecolor=red
 }
 
 \usepackage{url}            % simple URL typesetting
@@ -86,7 +87,7 @@
       historical check-ins and other multi-modal information such as POI attributes and
       friendship network, to recommend the next set of POIs suitable for a user. A POI
       recommendation technique essentially exploits users' historical check-ins and other
-      multimodal information to recommend the next set of POIs suitable for a user. \newline
+      multimodal information to recommend the next set of POIs suitable for a user. \newline 
     \end{abstract}
   \end{@twocolumnfalse}
 
@@ -100,24 +101,20 @@ next Point of Interest (POI) recommendation. The model is designed to
 capture the complex relationships between users and POIs, and to
 leverage the rich information available in the user-POI interaction
 graph. The proposed model is evaluated on a real-world dataset and
-compared with a tate-of-the-art baseline. The experimental results
-show that the proposed model outperforms the baselines and
-achieves state-of-the-art performance on the task of next POI recommendation.
+compared with a state-of-the-art baseline. The experimental results
+show that the proposed model outperforms the baseline and
+achieves the paper performance.
 
 
 \section{Data Preprocessing}
 \subsection{Dataset}
-The dataset used in this work is the Foursquare dataset\cite{foursquare}. This dataset includes
+The dataset used in this work is the Foursquare dataset\cite{foursquare}. It includes
 long-term (about 18 months from April 2012 to September 2013) global-scale
 check-in data collected from Foursquare. It contains 33,278,683 checkins by
 266,909 users on 3,680,126 venues (in 415 cities in 77 countries).
 Those 415 cities are the most checked 415 cities by Foursquare users in the world,
 each of which contains at least 10K check-ins.
-%insert image with the points on the map before preprocessing
-
 \subsection{Data Preprocessing}
-
-
 \begin{figure}[ht]
   \centering
   \begin{subfigure}[b]{0.95\linewidth}
@@ -135,8 +132,8 @@ each of which contains at least 10K check-ins.
   \end{subfigure}
   \caption{Comparison of Points of Interest on the world map before (\ref{fig:data}) and after (\ref{fig:preprocessed_data}) preprocessing}
 \end{figure}
-
-
+The dataset is preprocessed to filter out irrelevant data and to prepare
+ it for training the models.
 The preprocessing follows the same steps as in the original paper, which are:
 \begin{itemize}
   \item Filter out users with visit counts less than 20 and more than 50
@@ -144,9 +141,6 @@ The preprocessing follows the same steps as in the original paper, which are:
   \item Sort the timestamps in chronological order
   \item Divide the data into training and testing sets keeping the first 80\% of the visits for training and the last 20\% for testing
 \end{itemize}
-
-
-
 The number of POIs before and after processing matches exactly
 the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
 \begin{table}
@@ -164,11 +158,15 @@ the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
 \end{table}
 
 \subsection{Graph Construction}
+The GNN model proposed in the paper leverages two types 
+of graphs: spatial and temporal, that have been constructed
+as reported in the following sections.
 \subsubsection{Spatial Graph}
 The spatial graph encodes the relationships between
 different points of interest. It is constructed based on the
-physical or functional proximity of POIs. The adjacency matrix
-for the spatial graph is defined as follows:
+physical or functional proximity of POIs, by considering
+the geo-hash codes of the POIs. The adjacency matrix for the
+spatial graph is constructed as follows:
 \begin{equation}
   a_{ij} = \begin{cases}
     1 & \text{if } G@4(i) = G@4(j) \\
@@ -192,8 +190,6 @@ similarity between the two time slots:
 \begin{equation}
   \jax(v^{slot}_i, v^{slot}_j) = \frac{|v^{slot}_i \cap v^{slot}_j|}{|v^{slot}_i \cup v^{slot}_j|}
 \end{equation}
-
-
 
 \section{HMT-RN}
 The HMT\_RN (Hierarchical Multi\-Task Recurrent Network) is a
@@ -220,11 +216,11 @@ leverage both spatial and temporal graph structures for enhanced predictive
 capabilities.
 
 At its core, the GRN integrates graph attention mechanisms
-with recurrent layers to adeptly process and forecast sequential data points.
+with recurrent layers to precisely process and forecast sequential data points.
 This amalgamation enables the model to effectively capture the intricate
 spatial and temporal relationships inherent in the data.
 
-The model architecture encompasses multiple key components. Firstly, it employs
+The model architecture is composed of multiple key components. Firstly, it employs
 graph self-attention mechanisms to dynamically weigh the importance of
 neighboring data points within both spatial and temporal contexts.
 Central to the GRN is an attentional LSTM (Long Short-Term Memory) layer,
@@ -237,11 +233,13 @@ outcomes at multiple granularities, ranging from individual points of interest
 
 As with the previous model, the GRN integrates dropout regularization and uses
 cross-entropy loss as the optimization criterion.
+
 \section{Experiments}
 The training procedure utilized the PyTorch Lightning framework,
 augmented with the WandbLogger for real-time monitoring and logging of
 training metrics. The training dataset was split into train and test sets,
-with a batch size of $32$ and parallel processing enabled across $4$ workers for
+with a batch size of $2048$ for the LSTM model and $128$ for the GRN
+ and parallel processing enabled across $4$ workers for
 data loading efficiency. The GRN model was instantiated with specific
 hyperparameters, including a hidden dimension of $1024$ and a dropout rate of $0.9$
 as specified in the reference paper. The training process was configured
@@ -254,6 +252,56 @@ management and optimization techniques. The experimental setup aimed to
 strike a balance between computational efficiency and model performance,
 laying the groundwork for robust experimentation and evaluation of the
 GRN architecture.
+
+The values of the metrics during the training process are shown in Figures 
+\ref{fig:top1}, \ref{fig:top5}, \ref{fig:top10}, \ref{fig:top20}, and \ref{fig:mrr}.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{top1.png}
+  \caption{Top-1 accuracy}
+  \label{fig:top1}
+\end{figure}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{top5.png}
+  \caption{Top-5 accuracy}
+  \label{fig:top5}
+\end{figure}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{top10.png}
+  \caption{Top-10 accuracy}
+  \label{fig:top10}
+\end{figure}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{top20.png}
+  \caption{Top-20 accuracy}
+  \label{fig:top20}
+\end{figure}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{mrr.png}
+  \caption{Mean Reciprocal Rank (MRR)}
+  \label{fig:mrr}
+\end{figure}
+
+
+\subsection{Hyperparameters tuning}
+In the process of training the Graph Neural Network (GNN) classifier,
+ a systematic hyperparameter tuning procedure was employed 
+ to optimize the model's performance. Initially,
+  the batch size of the classifier was scaled using the power 
+  scaling method provided by the \texttt{tuner.scale\_batch\_size} function, 
+  which adjusts the batch size to the most appropriate value 
+  for efficient training. Following this, the learning rate was
+   fine-tuned using a learning rate finder, invoked through the 
+   \texttt{tuner.lr\_find} function. This function explored a
+    range of learning rates from $5 \times 10^{-5}$ to $1 \times 10^{-3}$ over
+     100 training iterations to identify the optimal learning rate
+      that minimizes the loss.
+
+
 \section{Results}
 \subsection{Metrics}
 The performance of the models is evaluated using the following metrics:
@@ -278,14 +326,17 @@ The models achieve similar performance to the original paper.
 \begin{table}
   \caption{Results}
   \centering
-  \begin{tabular}{llllll}
+  \begin{tabular}{p{1.55cm}lllll}
     \toprule
-    Name            & Top-1   & Top-5   & Top-10  & Top-20  & MRR     \\
+    Name & Top-1 & Top-5 & Top-10 & Top-20 & MRR \\
     \midrule
     \midrule
-    \textbf{HMT-RN} & $0.123$ & $0.456$ & $0.789$ & $0.987$ & $0.654$ \\
-    \textbf{GRN}    & $0.321$ & $0.654$ & $0.987$ & $0.123$ & $0.456$ \\
-
+    \textbf{HMT-RN (paper)}\cite{main_paper}\newline & $0.1434$ & $0.2677$ & $0.3213$ & $0.3781$ & $0.2053$ \\
+    \textbf{GRN \newline (paper)}\cite{main_paper} & $0.1455$ & $0.2783$ & $0.3394$ & $0.4033$ & $0.2120$ \\
+    \midrule
+    \midrule
+    \textbf{HMT-RN} & \textbf{0.1615} & \textbf{0.3331} & \textbf{0.4107} & \textbf{0.4869} & \textbf{0.2463} \\
+    \textbf{GRN} & \textbf{0.1683} & \textbf{0.3615} & \textbf{0.4353} & \textbf{0.5409} & \textbf{0.2629} \\
     \bottomrule
   \end{tabular}
   \label{tab:results}
