@@ -27,6 +27,8 @@
 \usepackage{fancyhdr}       % header
 \usepackage{graphicx}       % graphics
 \usepackage{amsmath}        % math
+\usepackage{cleveref}       % clever references
+\usepackage{tabularx}
 \graphicspath{{media/}}     % organize your images and other figures under media/ folder
 
 %Header
@@ -97,7 +99,8 @@
 \section{Introduction}
 This work is a re-implementation of the paper "Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation" \cite{main_paper}.
 The paper proposes a novel Graph Neural Network (GNN) model for the task of
-next Point of Interest (POI) recommendation. The model is designed to
+next Point of Interest (POI) recommendation, this model builds upon previous graph attention networks\cite{UPGAT} by taking into 
+account different levels of spatial granularity through the use of geo-hash grid codes. The model is designed to
 capture the complex relationships between users and POIs, and to
 leverage the rich information available in the user-POI interaction
 graph. The proposed model is evaluated on a real-world dataset and
@@ -115,6 +118,7 @@ check-in data collected from Foursquare. It contains 33,278,683 checkins by
 Those 415 cities are the most checked 415 cities by Foursquare users in the world,
 each of which contains at least 10K check-ins.
 \subsection{Data Preprocessing}
+\label{ssec:data_preprocessing}
 \begin{figure}[ht]
   \centering
   \begin{subfigure}[b]{0.95\linewidth}
@@ -130,7 +134,7 @@ each of which contains at least 10K check-ins.
     \caption{Remaining Points of Interest after dataset pruning}
     \label{fig:preprocessed_data}
   \end{subfigure}
-  \caption{Comparison of Points of Interest on the world map before (\ref{fig:data}) and after (\ref{fig:preprocessed_data}) preprocessing}
+  \caption{Comparison of Points of Interest on the world map before (\cref{fig:data}) and after (\cref{fig:preprocessed_data}) preprocessing}
 \end{figure}
 The dataset is preprocessed to filter out irrelevant data and to prepare
  it for training the models.
@@ -142,7 +146,7 @@ The preprocessing follows the same steps as in the original paper, which are:
   \item Divide the data into training and testing sets keeping the first 80\% of the visits for training and the last 20\% for testing
 \end{itemize}
 The number of POIs before and after processing matches exactly
-the numbers reported in the original paper, as shown in Table \ref{tab:poidata}.
+the numbers reported in the original paper, as shown in \cref{tab:poidata}.
 \begin{table}
   \caption{Number of POIs}
   \centering
@@ -211,7 +215,7 @@ levels (Top-1, Top-5, Top-10, Top-20)\footnote{Also called Accuracy@K in the pap
 Mean Reciprocal Rank (MRR) for performance
 evaluation.
 \section{GRN}
-The GRN (Graph Recurrent Network) is an attention\-based model, developed to
+The GRN (Graph Recurrent Network) is an attention based model, developed to
 leverage both spatial and temporal graph structures for enhanced predictive
 capabilities.
 
@@ -235,14 +239,15 @@ As with the previous model, the GRN integrates dropout regularization and uses
 cross-entropy loss as the optimization criterion.
 
 \section{Experiments}
-The training procedure utilized the PyTorch Lightning framework,
+The training procedure utilized the PyTorch Lightning framework\cite{lightning},
 augmented with the WandbLogger for real-time monitoring and logging of
-training metrics. The training dataset was split into train and test sets,
-with a batch size of $2048$ for the LSTM model and $128$ for the GRN
- and parallel processing enabled across $4$ workers for
-data loading efficiency. The GRN model was instantiated with specific
+training metrics. The training dataset was split into train and test sets as detailed in \cref{ssec:data_preprocessing}.
+We used a batch size of $2048$ for the LSTM model and $128$ for the GRN model, 
+loading was parallelized across $4$ workers for faster training. The GRN model was instantiated with specific
 hyperparameters, including a hidden dimension of $1024$ and a dropout rate of $0.9$
-as specified in the reference paper. The training process was configured
+as specified in the reference paper. Although not specified by the authors, we utilized 
+Kaiming initialization\cite{kaiming} for the model weights to ensure stable training.
+The training process was configured
 for a maximum of $200$ epochs and equipped with callbacks for dynamic
 adjustment of learning rates, model checkpointing, and early
 stopping based on validation loss.
@@ -253,8 +258,8 @@ strike a balance between computational efficiency and model performance,
 laying the groundwork for robust experimentation and evaluation of the
 GRN architecture.
 
-The values of the metrics during the training process are shown in Figures 
-\ref{fig:top1}, \ref{fig:top5}, \ref{fig:top10}, \ref{fig:top20}, and \ref{fig:mrr}.
+The values of the metrics during the training process are shown in 
+\cref{fig:top1,fig:top5,fig:top10,fig:top20,fig:mrr}.
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\linewidth]{top1.png}
@@ -304,6 +309,27 @@ In the process of training the Graph Neural Network (GNN) classifier,
 
 \section{Results}
 \subsection{Metrics}
+
+\begin{table*}[ht]
+  \caption{Results on the Foursquare dataset, test set. The first two rows are the results from the original paper\cite{main_paper}, the last two rows are the results from our implementation, the best metrics are 
+  highlighted in bold.}
+  \centering
+  \begin{tabularx}{\linewidth}{Xccccc}
+    \toprule
+    Name & Top-1 & Top-5 & Top-10 & Top-20 & MRR \\
+    \midrule
+    \midrule
+    \textbf{HMT-RN}\cite{main_paper} & $0.143$ & $0.267$ & $0.321$ & $0.378$ & $0.205$ \\
+    \textbf{GRN}\cite{main_paper} & $0.145$ & $0.278$ & $0.339$ & $0.403$ & $0.212$ \\
+    \midrule
+    \midrule
+    \textbf{HMT-RN (ours)} & \textbf{0.161} & \textbf{0.333} & \textbf{0.410} & \textbf{0.486} & \textbf{0.246} \\
+    \textbf{GRN (ours)} & \textbf{0.168} & \textbf{0.361} & \textbf{0.435} & \textbf{0.540} & \textbf{0.262} \\
+    \bottomrule
+  \end{tabularx}
+  \label{tab:results}
+\end{table*}
+
 The performance of the models is evaluated using the following metrics:
 \begin{itemize}
   \item Top-1, Top-5, Top-10, Top-20 accuracy
@@ -321,26 +347,10 @@ where $\delta$ is the indicator function, $N$ is the number of test samples, Top
 POIs with the highest predicted scores,
 and $\text{rank}_i$ is the rank of the correct POI for the $i$-th test sample.
 \subsection{Results}
-The results obtained from the experiments are summarized in Table \ref{tab:results}.
+The results obtained from the experiments are summarized in \cref{tab:results}.
 The models achieve similar performance to the original paper.
-\begin{table}
-  \caption{Results}
-  \centering
-  \begin{tabular}{p{1.55cm}lllll}
-    \toprule
-    Name & Top-1 & Top-5 & Top-10 & Top-20 & MRR \\
-    \midrule
-    \midrule
-    \textbf{HMT-RN (paper)}\cite{main_paper}\newline & $0.1434$ & $0.2677$ & $0.3213$ & $0.3781$ & $0.2053$ \\
-    \textbf{GRN \newline (paper)}\cite{main_paper} & $0.1455$ & $0.2783$ & $0.3394$ & $0.4033$ & $0.2120$ \\
-    \midrule
-    \midrule
-    \textbf{HMT-RN} & \textbf{0.1615} & \textbf{0.3331} & \textbf{0.4107} & \textbf{0.4869} & \textbf{0.2463} \\
-    \textbf{GRN} & \textbf{0.1683} & \textbf{0.3615} & \textbf{0.4353} & \textbf{0.5409} & \textbf{0.2629} \\
-    \bottomrule
-  \end{tabular}
-  \label{tab:results}
-\end{table}
+
+
 \section{Conclusion}
 We have re-implemented the HMT-RN and GRN models for the task of
 next POI recommendation. The models were evaluated on the refence
@@ -349,9 +359,6 @@ results show that the models achieve similar performance to the
 original paper, demonstrating the effectiveness of the proposed
 approach for next POI recommendation.
 %References
-\begin{thebibliography}{9}
-  \bibitem{main_paper}Nicholas Lim, Bryan Hooi, See-Kiong Ng, Yong Liang Goh, Renrong Weng, and Rui Tan. 2022. Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation. In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '22). Association for Computing Machinery, New York, NY, USA, 1133\-1143. https://doi.org/10.1145/3477495.3531989
-  \bibitem{foursquare}Dingqi Yang, Daqing Zhang, Longbiao Chen, and Bingqing Quc. 2015. NationTelescope: Monitoring and Visualizing Large-Scale Collective Behavior in LBSNs.
-  Journal of Network and Computer Applications 0, 0 (2015), 1–16.
-\end{thebibliography}
+\bibliographystyle{ieeetr}
+\bibliography{ref}
 \end{document}
